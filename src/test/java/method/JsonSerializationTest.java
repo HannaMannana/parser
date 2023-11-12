@@ -1,21 +1,35 @@
-package org.example;
+package method;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.entity.Customer;
 import org.example.entity.Order;
 import org.example.entity.Product;
+import org.example.method.JsonSerialization;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static org.example.method.JsonDeserialization.parseJsonArrayGen;
 import static org.example.method.JsonSerialization.getJson;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class Main {
-    public static void main(String[] args) throws Exception {
+class JsonSerializationTest {
 
+    private JsonSerialization serialization;
 
+    @BeforeEach
+    void setup (){
+        serialization = new JsonSerialization();
+    }
+
+    @Test
+    void getJsonStringFromObject() throws IOException, IllegalAccessException {
+        // given
         Product firstProduct = new Product();
         firstProduct.setId(UUID.fromString("f0445043-1fcc-4229-ba73-809c49e9e154"));
         firstProduct.setName("Water");
@@ -60,11 +74,17 @@ public class Main {
         customers.add(customer1);
         customers.add(customer2);
 
-        System.out.println(getJson(customers));
 
-        String jsonArray = "[{\"id\":\"e18628d0-2738-4f57-bfb1-9b2e7967d318\",\"name\": \"Butter\",\"price\":3.3},{\"id\":\"f0445043-1fcc-4229-ba73-809c49e9e154\",\"name\": \"Water\",\"price\":1.12}]";
+        StringWriter writer = new StringWriter();
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.writeValue(writer,customers);
+        String expected = writer.toString();
 
-        System.out.println(parseJsonArrayGen(jsonArray, Product.class));
+        // when
+        String actual = getJson(customers);
+
+        // then
+        assertEquals(expected, actual);
 
     }
 }
